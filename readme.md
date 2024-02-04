@@ -1,4 +1,5 @@
 # Snake Game Reinforcement Learning Model
+from https://www.youtube.com/watch?v=L8ypSXwyBds
 run agent.py to start training
 ### TODO:
 * Lower epsilon value when loading file (maybe check len of done?)
