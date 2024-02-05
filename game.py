@@ -23,7 +23,7 @@ Point = namedtuple("Point", "x, y")
 
 # const
 BLOCK_SIZE = 20
-SPEED = 100
+SPEED = 500
 
 WHITE = (255, 255, 255)
 RED = (200, 0, 0)

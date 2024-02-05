@@ -29,7 +29,7 @@ class Linear_QNet(nn.Module):
 class QTrainer:
     def __init__(self, model, lr, gamma) -> None:
         self.model = model
-        if os.path.exists(model.model_folder_path):
+        if os.path.exists(model.file_name):
             self.model.load_state_dict(torch.load(model.file_name))
             model.eval()
         self.lr = lr
