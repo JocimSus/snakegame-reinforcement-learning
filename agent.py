@@ -18,12 +18,13 @@ class Agent:
     def __init__(self, file_name="n_games.json") -> None:
         # declaring variables to use (Deep) Q Learning
         self.model = Linear_QNet(
-            11, 256, 3
+            12, 256, 3
         )  # 11 for amount of states, 3 for move action
 
         self.data = {
             "n_games": 0,
             "record": 0,
+            "total_score": 0,
         }
 
         self.file_name = os.path.join(self.model.model_folder_path, file_name)
@@ -32,9 +33,11 @@ class Agent:
                 data = json.load(f)
                 self.n_games = data["n_games"]
                 self.record = data["record"]
+                self.total_score = data["total_score"]
         else:
-            self.n_games = None
-            self.record = None
+            self.n_games = 0
+            self.record = 0
+            self.total_score = 0
 
         self.memory = deque(maxlen=MAX_MEMORY)  # if exceed max memory then popleft()
         self.epsilon = 0  # randomness
@@ -44,10 +47,13 @@ class Agent:
 
     def get_state(self, game):
         head = game.snake[0]
+
         point_l = Point(head.x - 20, head.y)
         point_r = Point(head.x + 20, head.y)
         point_u = Point(head.x, head.y - 20)
         point_d = Point(head.x, head.y + 20)
+
+        over_80percent = game.calculate_accessible_area_percentage()
 
         dir_l = game.direction == Direction.LEFT
         dir_r = game.direction == Direction.RIGHT
@@ -55,6 +61,8 @@ class Agent:
         dir_d = game.direction == Direction.DOWN
 
         state = [
+            # If percentage of empty space left is > 80% then be True
+            over_80percent,
             # Danger straight
             (dir_r and game.is_collision(point_r))
             or (dir_l and game.is_collision(point_l))
@@ -90,6 +98,7 @@ class Agent:
                 data = json.load(f)
             data["n_games"] = self.n_games
             data["record"] = self.record
+            data["total_score"] = self.total_score
             with open(self.file_name, "w") as f:
                 json.dump(data, f)
         else:
@@ -127,7 +136,6 @@ class Agent:
 def train():
     plot_scores = []
     plot_mean_scores = []
-    total_score = 0
     agent = Agent()
     game = SnakeGame()
     while True:
@@ -154,8 +162,8 @@ def train():
             print(f"Game {agent.n_games}, Score {score}, Record: {agent.record}")
 
             plot_scores.append(score)
-            total_score += score
-            mean_score = total_score / agent.n_games
+            agent.total_score += score
+            mean_score = agent.total_score / agent.n_games
             plot_mean_scores.append(mean_score)
             plot(plot_scores, plot_mean_scores, agent.n_games)
 

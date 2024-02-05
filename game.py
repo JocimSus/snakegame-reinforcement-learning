@@ -149,6 +149,67 @@ class SnakeGame:
 
         return False
 
+    def calculate_accessible_area(self):
+        visited = set()
+        stack = [self.head]
+        accessible_area = 0
+
+        while stack:
+            current_point = stack.pop()
+
+            if current_point in visited:
+                continue
+
+            visited.add(current_point)
+            accessible_area += 1
+
+            # Check neighboring points (up, down, left, right)
+            neighbors = [
+                Point(current_point.x + BLOCK_SIZE, current_point.y),
+                Point(current_point.x - BLOCK_SIZE, current_point.y),
+                Point(current_point.x, current_point.y + BLOCK_SIZE),
+                Point(current_point.x, current_point.y - BLOCK_SIZE),
+            ]
+
+            for neighbor in neighbors:
+                if (
+                    0 <= neighbor.x < self.w
+                    and 0 <= neighbor.y < self.h
+                    and neighbor not in visited
+                    and neighbor not in self.snake
+                ):
+                    stack.append(neighbor)
+
+        return accessible_area
+
+    def calculate_accessible_area_percentage(self):
+        total_spaces = (self.w / BLOCK_SIZE) * (self.h / BLOCK_SIZE)
+        accessible_area = self.calculate_accessible_area()
+        percentage = accessible_area / total_spaces
+        if percentage > 0.8:
+            return 1
+        else:
+            return 0
+
+    def accessible_area_percentage(self):
+        total_spaces = 0
+        empty_spaces = 0
+        # Check the surrounding 3x3 grid centered around the snake's head
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                x = self.head.x + i * BLOCK_SIZE
+                y = self.head.y + j * BLOCK_SIZE
+        if 0 <= x < self.w and 0 <= y < self.h:
+            total_spaces += 1
+            # Check if the position is empty (not occupied by the snake's body)
+            if Point(x, y) not in self.snake:
+                empty_spaces += 1
+        percentage = empty_spaces / total_spaces
+        if percentage > 0.8:
+            return 1
+        else:
+            return 0
+
     def play_step(self, action):
         self.frame_iteration += 1
         # 1. collect user input
@@ -183,18 +244,3 @@ class SnakeGame:
 
         # 6. return game over and return score
         return reward, game_over, self.score
-
-
-if __name__ == "__main__":
-    game = SnakeGame()
-
-    # game loop
-    while True:
-        game_over, score = game.play_step()
-
-        # break if game over
-        if game_over == True:
-            break
-
-    print(f"Final Score: {score}")
-    pygame.quit()

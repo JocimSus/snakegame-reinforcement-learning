@@ -13,3 +13,5 @@ Current thread 0x00003598 (most recent call first):
   File "c:\Users\User\Desktop\Code\snakegame-reinforcement-learning\agent.py", line 144 in \<module>
 <br> 
 cause because of moving plotter window when trying to plot
+* plotter is adding 1 every game cycle
+* detect collision from bigger area (3x3)
