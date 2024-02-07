@@ -48,10 +48,10 @@ class Agent:
     def get_state(self, game):
         head = game.snake[0]
 
-        point_l = Point(head.x - 20, head.y)
-        point_r = Point(head.x + 20, head.y)
-        point_u = Point(head.x, head.y - 20)
-        point_d = Point(head.x, head.y + 20)
+        points = []
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                points.append(Point(head.x + 20 * i, head.y + 20 * j))
 
         over_80percent = game.calculate_accessible_area_percentage()
 
@@ -63,21 +63,12 @@ class Agent:
         state = [
             # If percentage of empty space left is > 80% then be True
             over_80percent,
-            # Danger straight
-            (dir_r and game.is_collision(point_r))
-            or (dir_l and game.is_collision(point_l))
-            or (dir_u and game.is_collision(point_u))
-            or (dir_d and game.is_collision(point_d)),
-            # Danger right
-            (dir_u and game.is_collision(point_r))
-            or (dir_d and game.is_collision(point_l))
-            or (dir_l and game.is_collision(point_u))
-            or (dir_r and game.is_collision(point_d)),
-            # Danger left
-            (dir_d and game.is_collision(point_r))
-            or (dir_u and game.is_collision(point_l))
-            or (dir_r and game.is_collision(point_u))
-            or (dir_l and game.is_collision(point_d)),
+            # fmt: off
+            any(game.is_collision(p) for p in points[1:4]), #Danger Straight
+            any(game.is_collision(p) for p in [points[2], points[0], points[3], points[1]]), #Danger Right
+            any(game.is_collision(p) for p in [points[6], points[8], points[5], points[7]]),
+            # Danger Left
+            # fmt: on
             # Move direction
             dir_l,
             dir_r,
@@ -165,7 +156,8 @@ def train():
             agent.total_score += score
             mean_score = agent.total_score / agent.n_games
             plot_mean_scores.append(mean_score)
-            plot(plot_scores, plot_mean_scores, agent.n_games)
+            print("ngame", agent.n_games)
+            plot(plot_scores, plot_mean_scores)
 
 
 if __name__ == "__main__":
